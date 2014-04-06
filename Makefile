@@ -1,10 +1,10 @@
 CFLAGS = -Wall -Wextra -Wshadow -pedantic -g
 LDFLAGS = -lncurses
 
-SRC = gol.c
+SRC = ncgol.c
 OBJ = ${SRC:.c=.o}
 
-TARGET = gol
+TARGET = ncgol
 
 all: ${TARGET}
 

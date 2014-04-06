@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ncurses.h>
 
-#include "gol.h"
+#include "ncgol.h"
 
 void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 {

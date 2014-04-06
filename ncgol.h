@@ -1,5 +1,5 @@
-#ifndef _GOL_H_
-#define _GOL_H_
+#ifndef _NCGOL_H_
+#define _NCGOL_H_
 
 #define KEY_ESCAPE 27
 #define SLEEP_DFLT 300
