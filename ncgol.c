@@ -4,8 +4,29 @@
 
 #include <time.h>
 #include <ncurses.h>
+#include <signal.h>
 
 #include "ncgol.h"
+
+void handler_sigwinch(int sig)
+{
+	USED(sig);
+	endwin();
+	refresh();
+	clear();
+} 
+
+void print_center(char *msg, int attr)
+{
+	int row, col, len;
+	len = strlen(msg);
+
+	getmaxyx(stdscr, row, col);
+	attron(attr);
+	mvprintw(row / 2, (col - len) / 2, msg);
+	attroff(attr);
+	refresh();
+}
 
 void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 {
@@ -38,18 +59,6 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 		((grid->cells)[x][y]).age += 0;
 		((grid->cells)[x][y]).isalive = 0;
 	}
-}
-
-void print_center(char *msg, int attr)
-{
-	int row, col, len;
-	len = strlen(msg);
-
-	getmaxyx(stdscr, row, col);
-	attron(attr);
-	mvprintw(row / 2, (col - len) / 2, msg);
-	attroff(attr);
-	refresh();
 }
 
 grid_t *init_grid(int col, int row)
@@ -117,13 +126,14 @@ void toggle_help(int ymax, int xmax)
 	mvwprintw(help_win, 2, 2, "q: quit");
 	mvwprintw(help_win, 3, 2, "escape: quit");
 	mvwprintw(help_win, 4, 2, "r: restart");
+	mvwprintw(help_win, 4, 2, "R: restart and reset speed");
 	mvwprintw(help_win, 5, 2, "h: show this help");
 	mvwprintw(help_win, ymax / 2 - 2, xmax / 8 - 2,
 		  "press any key to close this window");
 
 	wrefresh(help_win);
 
-	/* waiting for a key */
+	/* waiting for a key to close */
 	wgetch(help_win);
 	delwin(help_win);
 }
@@ -149,6 +159,8 @@ int main(void)
 	int col, row;
 	int i, j;
 	int ymax, xmax;
+	int alives;
+	int c = 10;
 	char key;
 	grid_t *grid, *buf_grid;
 	WINDOW *w, *main_w;
@@ -156,8 +168,11 @@ int main(void)
 
 	struct timespec sleep_time;
 	int sleep = SLEEP_DFLT;
-
 	sleep_time.tv_sec = 0;
+
+	/* trap sigwinch (term window resize) */
+	signal(SIGWINCH, handler_sigwinch);
+
 	/* init curses */
 	main_w = initscr();
 	cbreak();
@@ -165,7 +180,6 @@ int main(void)
 	clear();
 	curs_set(0);
 	refresh();
-
 	getmaxyx(stdscr, ymax, xmax);
 
 	/* init windows */
@@ -177,9 +191,9 @@ int main(void)
 	/* init grids */
 	grid = init_grid(col, row);
 	buf_grid = init_grid(col, row);
-
 	randomize_grid(grid);
 
+	/* start message */
 	print_center("Press any key to continue", A_BOLD | A_BLINK);
 	wgetch(w);
 	wrefresh(w);
@@ -189,9 +203,15 @@ int main(void)
 
 	while ((key = wgetch(w)) != KEY_ESCAPE && key != 'q') {
 
-		if (running) {
+		if (running && c == 100) {
+
+			/* reset counter */
+			c = 0;
+
+			/* save buffer */
 			copy_grid(buf_grid, grid);
 
+			/* draw and compute grids */
 			for (j = 0; j < col; ++j) {
 				for (i = 0; i < row; ++i) {
 
@@ -212,15 +232,15 @@ int main(void)
 			wrefresh(w);
 
 			/* print infos */
+			alives = get_cells_alive(grid);
 			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
-			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %d", get_cells_alive(grid));
+			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %d (%0.2lf%%)", 
+				alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 			wrefresh(main_w);
 
-			sleep_time.tv_nsec = sleep * 1000000;
-			nanosleep(&sleep_time, NULL);
 		}
 
 		/* additionnal controls */
@@ -233,6 +253,11 @@ int main(void)
 				break;
 
 			case 'r':
+				flash();
+				randomize_grid(grid);
+				break;
+
+			case 'R':
 				flash();
 				sleep = SLEEP_DFLT;
 				randomize_grid(grid);
@@ -251,6 +276,10 @@ int main(void)
 				break;
 
 		}
+
+		sleep_time.tv_nsec = sleep * 1000000 / 100;
+		nanosleep(&sleep_time, NULL);
+		c++;
 	}
 
 	delwin(w);

@@ -16,5 +16,6 @@ typedef struct grid_t {
 } grid_t;
 
 #define	IS_CELL_ALIVE(grid, x, y) (((grid->cells)[x][y]).isalive)
+#define USED(x) (void)(x)
 
 #endif
