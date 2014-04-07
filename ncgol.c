@@ -236,7 +236,7 @@ int main(void)
 			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
-			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %d (%0.2lf%%)", 
+			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d (%0.2lf%%)", 
 				alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 			wrefresh(main_w);
