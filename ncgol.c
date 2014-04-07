@@ -126,8 +126,8 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 2, 2, "q: quit");
 	mvwprintw(help_win, 3, 2, "escape: quit");
 	mvwprintw(help_win, 4, 2, "r: restart");
-	mvwprintw(help_win, 4, 2, "R: restart and reset speed");
-	mvwprintw(help_win, 5, 2, "h: show this help");
+	mvwprintw(help_win, 5, 2, "R: restart and reset speed");
+	mvwprintw(help_win, 6, 2, "h: show this help");
 	mvwprintw(help_win, ymax / 2 - 2, xmax / 8 - 2,
 		  "press any key to close this window");
 
