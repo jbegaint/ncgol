@@ -217,7 +217,8 @@ int main(void)
 
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
-						mvwaddch(w, i, j, ' ' | A_REVERSE);
+						/* mvwaddch(w, i, j, ' ' | A_REVERSE); */
+						mvwaddch(w, i, j, 'o');
 					}
 					else {
 						/* wclear() somehow flashes the screen */
