@@ -110,7 +110,7 @@ void copy_grid(grid_t *dest, grid_t *src)
 	memcpy(*(dest->cells), *(src->cells), src->row * src->col * sizeof(cell_t));
 }
 
-void toggle_help(int ymax, int xmax)
+void disp_help(int ymax, int xmax)
 {
 	WINDOW *help_win;
 
@@ -160,7 +160,7 @@ int main(void)
 	int i, j;
 	int ymax, xmax;
 	int alives;
-	int c = 10;
+	int c = 0;
 	char key;
 	grid_t *grid, *buf_grid;
 	WINDOW *w, *main_w;
@@ -203,7 +203,7 @@ int main(void)
 
 	while ((key = wgetch(w)) != KEY_ESCAPE && key != 'q') {
 
-		if (running && c == 100) {
+		if (running && (c%100) == 0) {
 
 			/* reset counter */
 			c = 0;
@@ -217,7 +217,6 @@ int main(void)
 
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
-						/* mvwaddch(w, i, j, ' ' | A_REVERSE); */
 						mvwaddch(w, i, j, 'o');
 					}
 					else {
@@ -241,15 +240,19 @@ int main(void)
 				alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 			wrefresh(main_w);
-
 		}
 
 		/* additionnal controls */
 		switch (key) {
+			case ' ':
 			case 'p':
 				running = !running;
 				if (!running) {
-					print_center("PAUSED", A_BOLD);
+					print_center(" PAUSED ", A_BOLD);
+				}
+				else {
+					/* reset counter */
+					c = 100 - 1;
 				}
 				break;
 
@@ -265,7 +268,7 @@ int main(void)
 				break;
 
 			case 'h':
-				toggle_help(ymax, xmax);
+				disp_help(ymax, xmax);
 				break;
 
 			case '+':
@@ -275,7 +278,6 @@ int main(void)
 			case '-':
 				sleep = sleep * 2;
 				break;
-
 		}
 
 		sleep_time.tv_nsec = sleep * 1000000 / 100;
