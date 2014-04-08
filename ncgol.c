@@ -101,6 +101,7 @@ void randomize_grid(grid_t *grid)
 	for (j = 0; j < grid->col; ++j) {
 		for (i = 0; i < grid->row; ++i) {
 			((grid->cells)[i][j]).isalive = (rand() % 2 == 0) ? 0 : 1;
+			((grid->cells)[i][j]).age = 0;
 		}
 	}
 }
@@ -217,7 +218,12 @@ int main(void)
 
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
-						mvwaddch(w, i, j, 'o');
+						if (((grid->cells)[i][j]).age > 0) {
+							mvwaddch(w, i, j, 'O');
+						}
+						else {
+							mvwaddch(w, i, j, 'o');
+						}
 					}
 					else {
 						/* wclear() somehow flashes the screen */
