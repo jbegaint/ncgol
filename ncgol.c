@@ -155,6 +155,16 @@ int get_cells_alive(grid_t *grid)
 	return c;
 }
 
+void wait(int time)
+{
+	struct timespec sleep_time;
+
+	sleep_time.tv_sec = 0;
+	sleep_time.tv_nsec = time * 1000000 / SLEEP_CYCLE;
+
+	nanosleep(&sleep_time, NULL);
+}
+
 int main(void)
 {
 	int col, row;
@@ -166,22 +176,22 @@ int main(void)
 	grid_t *grid, *buf_grid;
 	WINDOW *w, *main_w;
 	int running = 1;
-
-	struct timespec sleep_time;
 	int sleep = SLEEP_DFLT;
-	sleep_time.tv_sec = 0;
 
 	/* trap sigwinch (term window resize) */
 	signal(SIGWINCH, handler_sigwinch);
 
 	/* init curses */
 	main_w = initscr();
+	start_color();
 	cbreak();
 	noecho();
 	clear();
 	curs_set(0);
-	refresh();
 	getmaxyx(stdscr, ymax, xmax);
+
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+	refresh();
 
 	/* init windows */
 	row = ymax - 2;
@@ -196,11 +206,13 @@ int main(void)
 
 	/* start message */
 	print_center("Press any key to continue", A_BOLD | A_BLINK);
+
 	wgetch(w);
 	wrefresh(w);
 	wclear(w);
 
 	nodelay(w, 1);
+	start_color();
 
 	while ((key = wgetch(w)) != KEY_ESCAPE && key != 'q') {
 
@@ -213,13 +225,15 @@ int main(void)
 			copy_grid(buf_grid, grid);
 
 			/* draw and compute grids */
-			for (j = 0; j < col; ++j) {
-				for (i = 0; i < row; ++i) {
+			for (j = 0; j < grid->col; ++j) {
+				for (i = 0; i < grid->row; ++i) {
 
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
 						if (((grid->cells)[i][j]).age > 0) {
-							mvwaddch(w, i, j, 'O');
+							attron(COLOR_PAIR(1));
+							mvwaddch(w, i, j, 'o');
+							attroff(COLOR_PAIR(1));
 						}
 						else {
 							mvwaddch(w, i, j, 'o');
@@ -258,7 +272,7 @@ int main(void)
 				}
 				else {
 					/* reset counter */
-					c = 100 - 1;
+					c = SLEEP_CYCLE- 1;
 				}
 				break;
 
@@ -286,8 +300,7 @@ int main(void)
 				break;
 		}
 
-		sleep_time.tv_nsec = sleep * 1000000 / 100;
-		nanosleep(&sleep_time, NULL);
+		wait(sleep);
 		c++;
 	}
 

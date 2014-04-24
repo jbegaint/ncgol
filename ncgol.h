@@ -3,6 +3,7 @@
 
 #define KEY_ESCAPE 27
 #define SLEEP_DFLT 300
+#define SLEEP_CYCLE 100
 
 typedef struct cell_t {
 	char isalive;
