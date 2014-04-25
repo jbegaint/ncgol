@@ -52,7 +52,6 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 	else if (IS_CELL_ALIVE(buf_grid, x, y) && (c == 3 || c == 4)) {
 		/* survival */
 		((grid->cells)[x][y]).age += 1;
-		((grid->cells)[x][y]).isalive = 1;
 	} 
 	else {
 		/* under-population or overcrowding */
@@ -95,8 +94,6 @@ void randomize_grid(grid_t *grid)
 {
 	int i, j;
 
-	/* init seed */
-	srand(time(NULL));
 
 	for (j = 0; j < grid->col; ++j) {
 		for (i = 0; i < grid->row; ++i) {
@@ -197,7 +194,11 @@ int main(void)
 	row = ymax - 2;
 	col = xmax - 2;
 	w = newwin(row, col, 1, 1);
+	/* wbkgdset(w, COLOR_PAIR(1)); */
 	wrefresh(w);
+
+	/* init seed */
+	srand(time(NULL));
 
 	/* init grids */
 	grid = init_grid(col, row);
@@ -212,7 +213,6 @@ int main(void)
 	wclear(w);
 
 	nodelay(w, 1);
-	start_color();
 
 	while ((key = wgetch(w)) != KEY_ESCAPE && key != 'q') {
 
@@ -231,9 +231,9 @@ int main(void)
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
 						if (((grid->cells)[i][j]).age > 0) {
-							attron(COLOR_PAIR(1));
+							wattron(w, COLOR_PAIR(1));
 							mvwaddch(w, i, j, 'o');
-							attroff(COLOR_PAIR(1));
+							wattroff(w, COLOR_PAIR(1));
 						}
 						else {
 							mvwaddch(w, i, j, 'o');
@@ -249,7 +249,6 @@ int main(void)
 				}
 			}
 			box(w, 0, 0);
-			wrefresh(w);
 
 			/* print infos */
 			alives = get_cells_alive(grid);
@@ -259,6 +258,8 @@ int main(void)
 			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d (%0.2lf%%)", 
 				alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
+
+			wrefresh(w);
 			wrefresh(main_w);
 		}
 
