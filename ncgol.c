@@ -48,6 +48,7 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 	if (!IS_CELL_ALIVE(buf_grid, x, y) && c == 3) {
 		/* reproduction */
 		((grid->cells)[x][y]).isalive = 1;
+		((grid->cells)[x][y]).age = 0;
 	} 
 	else if (IS_CELL_ALIVE(buf_grid, x, y) && (c == 3 || c == 4)) {
 		/* survival */
@@ -55,7 +56,7 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 	} 
 	else {
 		/* under-population or overcrowding */
-		((grid->cells)[x][y]).age += 0;
+		((grid->cells)[x][y]).age = 0;
 		((grid->cells)[x][y]).isalive = 0;
 	}
 }
@@ -194,7 +195,6 @@ int main(void)
 	row = ymax - 2;
 	col = xmax - 2;
 	w = newwin(row, col, 1, 1);
-	/* wbkgdset(w, COLOR_PAIR(1)); */
 	wrefresh(w);
 
 	/* init seed */
@@ -231,12 +231,12 @@ int main(void)
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
 						if (((grid->cells)[i][j]).age > 0) {
+							mvwaddch(w, i, j, 'o');
+						}
+						else {
 							wattron(w, COLOR_PAIR(1));
 							mvwaddch(w, i, j, 'o');
 							wattroff(w, COLOR_PAIR(1));
-						}
-						else {
-							mvwaddch(w, i, j, 'o');
 						}
 					}
 					else {
