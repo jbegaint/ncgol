@@ -187,7 +187,7 @@ int main(void)
 	curs_set(0);
 	getmaxyx(stdscr, ymax, xmax);
 
-	init_pair(1, COLOR_RED, COLOR_BLACK);
+	init_pair(1, COLOR_GREEN, COLOR_BLACK);
 	refresh();
 
 	/* init windows */
@@ -254,7 +254,7 @@ int main(void)
 			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
-			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d 
+			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d \
 					(%0.2lf%%)", alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 
