@@ -49,12 +49,10 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 		/* reproduction */
 		((grid->cells)[x][y]).isalive = 1;
 		((grid->cells)[x][y]).age = 0;
-	} 
-	else if (IS_CELL_ALIVE(buf_grid, x, y) && (c == 3 || c == 4)) {
+	} else if (IS_CELL_ALIVE(buf_grid, x, y) && (c == 3 || c == 4)) {
 		/* survival */
 		((grid->cells)[x][y]).age += 1;
-	} 
-	else {
+	} else {
 		/* under-population or overcrowding */
 		((grid->cells)[x][y]).age = 0;
 		((grid->cells)[x][y]).isalive = 0;
@@ -106,7 +104,8 @@ void randomize_grid(grid_t *grid)
 
 void copy_grid(grid_t *dest, grid_t *src)
 {
-	memcpy(*(dest->cells), *(src->cells), src->row * src->col * sizeof(cell_t));
+	memcpy(*(dest->cells), *(src->cells), src->row * src->col * 
+			sizeof(cell_t));
 }
 
 void disp_help(int ymax, int xmax)
@@ -255,8 +254,8 @@ int main(void)
 			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
 			mvwprintw(main_w, ymax - 1, 1, "speed: %lf", 1 / (double) sleep);
-			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d (%0.2lf%%)", 
-				alives, (double) alives / (row*col));
+			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, "cells alive: %5d 
+					(%0.2lf%%)", alives, (double) alives / (row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 
 			wrefresh(w);
