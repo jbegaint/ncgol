@@ -112,12 +112,23 @@ void disp_help(int ymax, int xmax)
 {
 	WINDOW *help_win;
 
-	help_win = newwin(ymax / 2, xmax / 2, ymax / 4, xmax / 4);
+	int w_help_y = 10;
+	int w_help_x = 40;
+
+	if ((ymax < w_help_y) || (xmax < w_help_x)) {
+		print_center("term window too small", A_BOLD | A_BLINK | A_UNDERLINE);
+		getch();
+		endwin();
+		exit(EXIT_FAILURE);
+	}
+
+	help_win = newwin(w_help_y, w_help_x, (ymax - w_help_y )/ 2, (xmax -
+				w_help_x) / 2); 
 	box(help_win, 0, 0);
 
 	/* print title */
 	attron(A_BOLD);
-	mvwprintw(help_win, 1, xmax / 4 - 2, "Help");
+	mvwprintw(help_win, 1, w_help_x / 2 - 2, "Help");
 	attroff(A_BOLD);
 
 	/* print text */
@@ -126,7 +137,7 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 4, 2, "r: restart");
 	mvwprintw(help_win, 5, 2, "R: restart and reset speed");
 	mvwprintw(help_win, 6, 2, "h: show this help");
-	mvwprintw(help_win, ymax / 2 - 2, xmax / 8 - 2,
+	mvwprintw(help_win, w_help_y - 2, 3,
 		  "press any key to close this window");
 
 	wrefresh(help_win);
