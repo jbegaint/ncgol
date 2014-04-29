@@ -59,7 +59,7 @@ void update_grid(grid_t *grid, grid_t *buf_grid, int x, int y)
 	}
 }
 
-grid_t *init_grid(int col, int row)
+grid_t *grid_init(int col, int row)
 {
 	int i;
 	grid_t *grid;
@@ -81,7 +81,7 @@ grid_t *init_grid(int col, int row)
 	return grid;
 }
 
-void free_grid(grid_t *grid)
+void grid_free(grid_t *grid)
 {
 	/* free the mallocs... */
 	free(*(grid->cells));
@@ -89,7 +89,7 @@ void free_grid(grid_t *grid)
 	free(grid);
 }
 
-void randomize_grid(grid_t *grid)
+void grid_randomize(grid_t *grid)
 {
 	int i, j;
 
@@ -102,7 +102,7 @@ void randomize_grid(grid_t *grid)
 	}
 }
 
-void copy_grid(grid_t *dest, grid_t *src)
+void grid_copy(grid_t *dest, grid_t *src)
 {
 	memcpy(*(dest->cells), *(src->cells), src->row * src->col * 
 			sizeof(cell_t));
@@ -211,9 +211,9 @@ int main(void)
 	srand(time(NULL));
 
 	/* init grids */
-	grid = init_grid(col, row);
-	buf_grid = init_grid(col, row);
-	randomize_grid(grid);
+	grid = grid_init(col, row);
+	buf_grid = grid_init(col, row);
+	grid_randomize(grid);
 
 	/* start message */
 	print_center("Press any key to continue", A_BOLD | A_BLINK);
@@ -232,7 +232,7 @@ int main(void)
 			c = 0;
 
 			/* save buffer */
-			copy_grid(buf_grid, grid);
+			grid_copy(buf_grid, grid);
 
 			/* draw and compute grids */
 			for (j = 0; j < grid->col; ++j) {
@@ -289,13 +289,13 @@ int main(void)
 
 			case 'r':
 				flash();
-				randomize_grid(grid);
+				grid_randomize(grid);
 				break;
 
 			case 'R':
 				flash();
 				sleep = SLEEP_DFLT;
-				randomize_grid(grid);
+				grid_randomize(grid);
 				break;
 
 			case 'h':
@@ -318,8 +318,8 @@ int main(void)
 	delwin(w);
 	endwin();
 
-	free_grid(grid);
-	free_grid(buf_grid);
+	grid_free(grid);
+	grid_free(buf_grid);
 
 	exit(EXIT_SUCCESS);
 }
