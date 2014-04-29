@@ -2,7 +2,7 @@
 #define _NCGOL_H_
 
 #define KEY_ESCAPE 27
-#define SLEEP_DFLT 300
+#define SPEED_DFLT 1
 #define SLEEP_CYCLE 100
 
 typedef struct cell_t {
