@@ -138,7 +138,7 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 5, 2, "R: restart and reset speed");
 	mvwprintw(help_win, 6, 2, "h: show this help");
 	mvwprintw(help_win, 7, 2, "+: increase speed");
-	mvwprintw(help_win, 8, 2, "h: decrease speed");
+	mvwprintw(help_win, 8, 2, "-: decrease speed");
 	mvwprintw(help_win, w_help_y - 2, 3,
 		  "press any key to close this window");
 
