@@ -177,12 +177,12 @@ void wait(double speed)
 
 void increase_speed(double *sleep)
 {
-	*sleep = *sleep * 2;
+	*sleep = *sleep * 1.5;
 }
 
 void decrease_speed(double *sleep)
 {
-	*sleep = *sleep / 2;
+	*sleep = *sleep / 1.5;
 }
 
 int main(void)
@@ -328,6 +328,7 @@ int main(void)
 		c++;
 	}
 
+	/* cleanup */
 	delwin(w);
 	endwin();
 
