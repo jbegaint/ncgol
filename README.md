@@ -3,5 +3,10 @@ ncgol
 
 simple (stupid ?) ncurses game of life (C)
 
-todo:
-* fix speed info text ("inf0000...")
+Screenshot
+----------
+[!img] (https://raw.githubusercontent.com/jeanbroid/ncgol/master/screenshot.png)
+
+Todo:
+-----
+* change color for older cells
