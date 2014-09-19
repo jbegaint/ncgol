@@ -4,6 +4,7 @@
 #define KEY_ESCAPE 27
 #define SPEED_DFLT 1
 #define SLEEP_CYCLE 100
+#define SPEED_FACTOR 1.5
 
 typedef struct cell_t {
 	char isalive;

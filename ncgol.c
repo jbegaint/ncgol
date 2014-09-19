@@ -170,19 +170,19 @@ void wait(double speed)
 	struct timespec sleep_time;
 
 	sleep_time.tv_sec = 0;
-	sleep_time.tv_nsec = (1 / speed) * (1000 * 1000 * 100 / SLEEP_CYCLE);
+	sleep_time.tv_nsec = (1 / speed) * (1e8 / SLEEP_CYCLE);
 
 	nanosleep(&sleep_time, NULL);
 }
 
 void increase_speed(double *sleep)
 {
-	*sleep = *sleep * 1.5;
+	*sleep = *sleep * SPEED_FACTOR;
 }
 
 void decrease_speed(double *sleep)
 {
-	*sleep = *sleep / 1.5;
+	*sleep = *sleep / SPEED_FACTOR;
 }
 
 int main(void)
@@ -253,11 +253,11 @@ int main(void)
 					/* current state */
 					if (IS_CELL_ALIVE(grid, i, j)) {
 						if (((grid->cells)[i][j]).age > 0) {
-							mvwaddch(w, i, j, 'o');
+							mvwaddch(w, i, j, ACS_BLOCK);
 						}
 						else {
 							wattron(w, COLOR_PAIR(1));
-							mvwaddch(w, i, j, 'o');
+							mvwaddch(w, i, j, ACS_BLOCK);
 							wattroff(w, COLOR_PAIR(1));
 						}
 					}
@@ -270,15 +270,20 @@ int main(void)
 					update_grid(grid, buf_grid, i, j);
 				}
 			}
+			/* draw box */
 			box(w, 0, 0);
 
-			/* print infos */
+			/* get infos */
 			alives = get_cells_alive(grid);
+
+			/* print infos */
+			attron(A_BOLD);
 			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
+			attroff(A_BOLD);
 			mvwprintw(main_w, ymax - 1, 1, "speed: %06.02lf %%", speed / SPEED_DFLT 
 					* 100);
 			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, 
-					"cells alive: %5d (%0.2lf%%)", alives, (double) alives / 
+					"cells alive: %d (%0.2lf%%)", alives, (double) alives / 
 					(row*col));
 			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 
@@ -296,7 +301,7 @@ int main(void)
 				}
 				else {
 					/* reset cycle counter */
-					c = SLEEP_CYCLE- 1;
+					c = SLEEP_CYCLE - 1;
 				}
 				break;
 
