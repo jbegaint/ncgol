@@ -253,6 +253,10 @@ int main(void)
 				/* get infos */
 				alives = get_cells_alive(grid);
 
+				/* clear line */
+				wmove(main_w, ymax - 1, 0);
+				clrtoeol();
+
 				/* print infos */
 				attron(A_BOLD);
 				mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
