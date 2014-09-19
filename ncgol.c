@@ -8,6 +8,8 @@
 
 #include "ncgol.h"
 
+static int display_info = 1;
+
 void handler_sigwinch(int sig)
 {
 	USED(sig);
@@ -112,7 +114,7 @@ void disp_help(int ymax, int xmax)
 {
 	WINDOW *help_win;
 
-	int w_help_y = 12;
+	int w_help_y = 13;
 	int w_help_x = 40;
 
 	if ((ymax < w_help_y) || (xmax < w_help_x)) {
@@ -139,6 +141,7 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 6, 2, "h: show this help");
 	mvwprintw(help_win, 7, 2, "+: increase speed");
 	mvwprintw(help_win, 8, 2, "-: decrease speed");
+	mvwprintw(help_win, 9, 2, "i: toggle information display");
 	mvwprintw(help_win, w_help_y - 2, 3,
 		  "press any key to close this window");
 
@@ -246,6 +249,26 @@ int main(void)
 			/* save buffer */
 			grid_copy(buf_grid, grid);
 
+			if (display_info) {
+				/* get infos */
+				alives = get_cells_alive(grid);
+
+				/* print infos */
+				attron(A_BOLD);
+				mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
+				attroff(A_BOLD);
+				mvwprintw(main_w, ymax - 1, 1, "speed: %06.02lf %%", speed / 
+						SPEED_DFLT * 100);
+				mvwprintw(main_w, ymax - 1, xmax / 2 - 10, 
+						"cells alive: %d (%0.2lf%%)", alives, (double) alives / 
+						(row*col));
+				mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
+			}
+			else {
+				wclear(main_w);
+			}
+			wrefresh(main_w);
+
 			/* draw and compute grids */
 			for (j = 0; j < grid->col; ++j) {
 				for (i = 0; i < grid->row; ++i) {
@@ -273,22 +296,8 @@ int main(void)
 			/* draw box */
 			box(w, 0, 0);
 
-			/* get infos */
-			alives = get_cells_alive(grid);
-
-			/* print infos */
-			attron(A_BOLD);
-			mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
-			attroff(A_BOLD);
-			mvwprintw(main_w, ymax - 1, 1, "speed: %06.02lf %%", speed / SPEED_DFLT 
-					* 100);
-			mvwprintw(main_w, ymax - 1, xmax / 2 - 10, 
-					"cells alive: %d (%0.2lf%%)", alives, (double) alives / 
-					(row*col));
-			mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
-
+			/* refresh grid window */
 			wrefresh(w);
-			wrefresh(main_w);
 		}
 
 		/* additionnal controls */
@@ -326,6 +335,10 @@ int main(void)
 			
 			case '-':
 				decrease_speed(&speed);
+				break;
+			
+			case 'i':
+				display_info = !display_info;
 				break;
 		}
 
