@@ -9,6 +9,7 @@
 #include "ncgol.h"
 
 static int display_info = 1;
+static int auto_reset = 0;
 
 void handler_sigwinch(int sig)
 {
@@ -16,7 +17,7 @@ void handler_sigwinch(int sig)
 	endwin();
 	refresh();
 	clear();
-} 
+}
 
 void print_center(char *msg, int attr)
 {
@@ -95,7 +96,6 @@ void grid_randomize(grid_t *grid)
 {
 	int i, j;
 
-
 	for (j = 0; j < grid->col; ++j) {
 		for (i = 0; i < grid->row; ++i) {
 			((grid->cells)[i][j]).isalive = (rand() % 2 == 0) ? 0 : 1;
@@ -106,7 +106,7 @@ void grid_randomize(grid_t *grid)
 
 void grid_copy(grid_t *dest, grid_t *src)
 {
-	memcpy(*(dest->cells), *(src->cells), src->row * src->col * 
+	memcpy(*(dest->cells), *(src->cells), src->row * src->col *
 			sizeof(cell_t));
 }
 
@@ -114,7 +114,7 @@ void disp_help(int ymax, int xmax)
 {
 	WINDOW *help_win;
 
-	int w_help_y = 13;
+	int w_help_y = 14;
 	int w_help_x = 40;
 
 	if ((ymax < w_help_y) || (xmax < w_help_x)) {
@@ -125,7 +125,7 @@ void disp_help(int ymax, int xmax)
 	}
 
 	help_win = newwin(w_help_y, w_help_x, (ymax - w_help_y )/ 2, (xmax -
-				w_help_x) / 2); 
+				w_help_x) / 2);
 	box(help_win, 0, 0);
 
 	/* print title */
@@ -142,8 +142,9 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 7, 2, "+: increase speed");
 	mvwprintw(help_win, 8, 2, "-: decrease speed");
 	mvwprintw(help_win, 9, 2, "i: toggle information display");
+	mvwprintw(help_win, 10, 2, "a: toggle auto reset");
 	mvwprintw(help_win, w_help_y - 2, 3,
-		  "press any key to close this window");
+			"press any key to close this window");
 
 	wrefresh(help_win);
 
@@ -193,8 +194,9 @@ int main(void)
 	int col, row;
 	int i, j;
 	int ymax, xmax;
-	int alives;
+	int alives, alives_past = 0;
 	int c = 0;
+	int n_loop_stalling = 0;
 	char key;
 	grid_t *grid, *buf_grid;
 	WINDOW *w, *main_w;
@@ -249,29 +251,30 @@ int main(void)
 			/* save buffer */
 			grid_copy(buf_grid, grid);
 
+			/* get infos */
+			alives = get_cells_alive(grid);
+
+			/* clear status line */
+			wmove(main_w, ymax - 1, 0);
+			clrtoeol();
+
 			if (display_info) {
-				/* get infos */
-				alives = get_cells_alive(grid);
-
-				/* clear line */
-				wmove(main_w, ymax - 1, 0);
-				clrtoeol();
-
 				/* print infos */
 				attron(A_BOLD);
 				mvwprintw(main_w, 0, xmax / 2 - 10, "Conway's Game Of Life");
 				attroff(A_BOLD);
-				mvwprintw(main_w, ymax - 1, 1, "speed: %06.02lf %%", speed / 
+				mvwprintw(main_w, ymax - 1, 1, "speed: %06.02lf %%", speed /
 						SPEED_DFLT * 100);
-				mvwprintw(main_w, ymax - 1, xmax / 2 - 10, 
-						"cells alive: %d (%0.2lf%%)", alives, (double) alives / 
+				mvwprintw(main_w, ymax - 1, xmax / 2 - 10,
+						"cells alive: %d (%0.2lf%%)", alives, (double) alives /
 						(row*col));
+				if (auto_reset) {
+					mvwprintw(main_w, ymax - 1, xmax - 22, "[AR]");
+				}
 				mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 			}
 			else {
-				/* clear lines */
-				wmove(main_w, ymax - 1, 0);
-				clrtoeol();
+				/* clear title line */
 				wmove(main_w, 0, 0);
 				clrtoeol();
 			}
@@ -306,6 +309,22 @@ int main(void)
 
 			/* refresh grid window */
 			wrefresh(w);
+
+			if (auto_reset) {
+				if (alives == alives_past) {
+					n_loop_stalling++;
+					/* let's consider 100 iterations are enough 
+					 * to state the grid is stalled */
+					if (n_loop_stalling > 100) {
+						grid_randomize(grid);	
+						n_loop_stalling = 0;
+					}
+				}
+				else {
+					n_loop_stalling = 0;
+				}
+				alives_past = alives;
+			}
 		}
 
 		/* additionnal controls */
@@ -340,13 +359,17 @@ int main(void)
 			case '+':
 				increase_speed(&speed);
 				break;
-			
+
 			case '-':
 				decrease_speed(&speed);
 				break;
-			
+
 			case 'i':
 				display_info = !display_info;
+				break;
+
+			case 'a':
+				auto_reset = !auto_reset;
 				break;
 		}
 
