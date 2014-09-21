@@ -313,10 +313,10 @@ int main(void)
 			if (auto_reset) {
 				if (alives == alives_past) {
 					n_loop_stalling++;
-					/* let's consider 100 iterations are enough 
+					/* let's consider 100 iterations are enough
 					 * to state the grid is stalled */
 					if (n_loop_stalling > 100) {
-						grid_randomize(grid);	
+						grid_randomize(grid);
 						n_loop_stalling = 0;
 					}
 				}
