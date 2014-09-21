@@ -269,7 +269,11 @@ int main(void)
 				mvwprintw(main_w, ymax - 1, xmax - 17, "press h for help");
 			}
 			else {
-				wclear(main_w);
+				/* clear lines */
+				wmove(main_w, ymax - 1, 0);
+				clrtoeol();
+				wmove(main_w, 0, 0);
+				clrtoeol();
 			}
 			wrefresh(main_w);
 
