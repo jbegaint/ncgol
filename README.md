@@ -5,7 +5,8 @@ simple (stupid ?) ncurses game of life (C)
 
 Screenshot
 ----------
-With `urxvt` + `tmux`, _Your mileage may vary_.
+With `urxvt` and `tmux`, _Your mileage may vary_.
+
 ![img] (https://raw.githubusercontent.com/jeanbroid/ncgol/master/screenshot.png)
 
 Todo:
