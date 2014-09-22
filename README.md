@@ -7,7 +7,7 @@ Screenshot
 ----------
 With `urxvt` and `tmux`, _Your mileage may vary_.
 
-![img] (https://raw.githubusercontent.com/jeanbroid/ncgol/master/screenshot.png)
+![img] (https://raw.githubusercontent.com/jeanbroid/ncgol/master/preview/screenshot.png)
 
 Todo:
 -----
