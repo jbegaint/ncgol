@@ -114,14 +114,13 @@ void disp_help(int ymax, int xmax)
 {
 	WINDOW *help_win;
 
-	int w_help_y = 14;
-	int w_help_x = 40;
+	const int w_help_y = 14;
+	const int w_help_x = 40;
 
 	if ((ymax < w_help_y) || (xmax < w_help_x)) {
-		print_center("term window too small", A_BOLD | A_BLINK | A_UNDERLINE);
+		print_center("terminal window too small", A_BOLD | A_BLINK | A_UNDERLINE);
 		getch();
 		endwin();
-		exit(EXIT_FAILURE);
 	}
 
 	help_win = newwin(w_help_y, w_help_x, (ymax - w_help_y )/ 2, (xmax -
@@ -145,7 +144,6 @@ void disp_help(int ymax, int xmax)
 	mvwprintw(help_win, 10, 2, "a: toggle auto reset");
 	mvwprintw(help_win, w_help_y - 2, 3,
 			"press any key to close this window");
-
 	wrefresh(help_win);
 
 	/* waiting for a key to close */
@@ -167,6 +165,38 @@ int get_cells_alive(grid_t *grid)
 	}
 
 	return c;
+}
+
+void grid_draw(grid_t *grid, grid_t *buf_grid, WINDOW *w)
+{
+	int i, j;
+
+	/* save current grid */
+	grid_copy(buf_grid, grid);
+
+	/* draw and compute grids */
+	for (j = 0; j < grid->col; ++j) {
+		for (i = 0; i < grid->row; ++i) {
+
+			/* current state */
+			if (IS_CELL_ALIVE(grid, i, j)) {
+				if (((grid->cells)[i][j]).age > 0) {
+					mvwaddch(w, i, j, ACS_BLOCK);
+				}
+				else {
+					wattron(w, COLOR_PAIR(1));
+					mvwaddch(w, i, j, ACS_BLOCK);
+					wattroff(w, COLOR_PAIR(1));
+				}
+			}
+			else {
+				/* wclear() somehow flashes the screen */
+				mvwaddch(w, i, j, ' ');
+			}
+			/* next state */
+			update_grid(grid, buf_grid, i, j);
+		}
+	}
 }
 
 void wait(double speed)
@@ -192,7 +222,6 @@ void decrease_speed(double *sleep)
 int main(void)
 {
 	int col, row;
-	int i, j;
 	int ymax, xmax;
 	int alives, alives_past = 0;
 	int c = 0;
@@ -248,9 +277,6 @@ int main(void)
 			/* reset counter */
 			c = 0;
 
-			/* save buffer */
-			grid_copy(buf_grid, grid);
-
 			/* get infos */
 			alives = get_cells_alive(grid);
 
@@ -280,30 +306,9 @@ int main(void)
 			}
 			wrefresh(main_w);
 
-			/* draw and compute grids */
-			for (j = 0; j < grid->col; ++j) {
-				for (i = 0; i < grid->row; ++i) {
+			/* draw grid and compute next step */
+			grid_draw(grid, buf_grid, w);
 
-					/* current state */
-					if (IS_CELL_ALIVE(grid, i, j)) {
-						if (((grid->cells)[i][j]).age > 0) {
-							mvwaddch(w, i, j, ACS_BLOCK);
-						}
-						else {
-							wattron(w, COLOR_PAIR(1));
-							mvwaddch(w, i, j, ACS_BLOCK);
-							wattroff(w, COLOR_PAIR(1));
-						}
-					}
-					else {
-						/* wclear() somehow flashes the screen */
-						mvwaddch(w, i, j, ' ');
-					}
-
-					/* next state */
-					update_grid(grid, buf_grid, i, j);
-				}
-			}
 			/* draw box */
 			box(w, 0, 0);
 
